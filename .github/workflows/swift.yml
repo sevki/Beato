@@ -17,3 +17,5 @@ jobs:
       run: swift build -v
     - name: Run tests
       run: swift test -v
+    - name: Generate Docs
+      run: swift package --allow-writing-to-directory ./docs generate-documentation --target Beato --output-path ./docs

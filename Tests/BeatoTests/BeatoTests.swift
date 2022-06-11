@@ -1,5 +1,5 @@
-import XCTest
 @testable import Beato
+import XCTest
 
 final class BeatoTests: XCTestCase {
     func testExample() throws {
