@@ -1,0 +1,10 @@
+@Tutorials(name: "Programming Guitar Music") {
+    @Intro(title: "Programming Guitar Music") {
+        This tutorial is a translation of the excellent [Programming Guitar Music](https://timiskhakov.github.io/posts/programming-guitar-music) blog post by [@timiskhakov](https://github.com/timiskhakov), where we'll be going over the [Karplus-Strong](https://ccrma.stanford.edu/~jos/pasp/Karplus_Strong_Algorithm.html) algorithm.
+    }
+    
+    @Chapter(name: "Karplus-Strong") {
+        @Image(source: "ks.png", alt: "Karplus-Strong")
+        @TutorialReference(tutorial: "doc:Karplus-Strong")
+    }
+}

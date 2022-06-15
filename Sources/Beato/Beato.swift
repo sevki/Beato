@@ -1,124 +1,104 @@
-import AudioToolbox
+import Foundation
 
 postfix operator ♭
 postfix operator ♯
 
-@propertyWrapper
-struct Pitch {
+/// Pitch represents a musical [Pitch](https://en.wikipedia.org/wiki/Pitch_(music)).
+@propertyWrapper public struct Pitch {
     var hertz: Double
-    var wrappedValue: Double {
+    public var wrappedValue: Double {
         get { hertz }
         set { hertz = newValue }
     }
-    // Increases the pitch by 12th parts
-    static postfix func ♯(num: Pitch) -> Pitch {
-        return Pitch(hertz: num.hertz * 1.0594630943592953)
+
+    /// Increases the pitch by 12th parts
+    public static postfix func ♯ (num: Pitch) -> Pitch {
+        Pitch(hertz: num.hertz * 1.0594630943592953)
     }
-    // Decreases the pitch by 12th parts
-    static postfix func ♭(num: Pitch) -> Pitch {
-        return Pitch(hertz: num.hertz * 0.9438743126816935)
+
+    /// Decreases the pitch by 12th parts
+    public static postfix func ♭ (num: Pitch) -> Pitch {
+        Pitch(hertz: num.hertz * 0.9438743126816935)
     }
 }
 
-@propertyWrapper
-struct Note {
+/// Note represents a pitch class.
+@propertyWrapper public struct Note {
     var number: Int
-    var wrappedValue: Int {
+    public var wrappedValue: Int {
         get { number }
         set { number = newValue }
     }
-    static postfix func ♯(num: Note) -> Note {
-        return Note(number: num.number+1)
+
+    public static postfix func ♯ (num: Note) -> Note {
+        Note(number: num.number + 1)
     }
-    static postfix func ♭(num: Note) -> Note {
-        return Note(number: num.number+1)
+
+    public static postfix func ♭ (num: Note) -> Note {
+        Note(number: num.number + 1)
     }
 }
 
 postfix operator ♪
 
-
-extension Pitch {
-    // Convert a pitch to a MIDI note number
-    static postfix func ♪(num: Pitch) -> Note {
-        return Note(number: Int(round(12 * log2(num.wrappedValue / 440.0))))
+public extension Pitch {
+    /// Convert an absolute pitch to it's relative pitch class.
+    static postfix func ♪ (num: Pitch) -> Note {
+        Note(number: Int(round(12 * log2(num.wrappedValue / 440.0))))
     }
 }
 
-enum MIDI {
-    enum Notes {
-        static let 🤫 = Note(number: -1)
-        // C4
-        static let C = Note(number: 60)
-        // D
-        static let D = Note(number: 62)
-        // E
-        static let E = Note(number: 64)
-        // F
-        static let F = Note(number: 65)
-        // G
-        static let G = Note(number: 67)
-        // A
-        static let A = Note(number: 69)
-        // B
-        static let B = Note(number: 71)
+public extension Note {
+    static postfix func ⋔ (_ n: Note) -> Pitch {
+        Pitch(hertz: pow(2.0, Double(n.number - 69) / 12.0) * 440.0)
     }
 }
 
-@resultBuilder
-enum NoteBuilder{
-    static func buildBlock(_ notes: Note...) -> [MIDINoteMessage] {
-        notes.map {
-            if $0 == MIDI.Notes.🤫{
-                return MIDINoteMessage(channel: 0, note: 0, velocity: 0, releaseVelocity: 0, duration: 1)
-            } else {
-           return  MIDINoteMessage(channel: 1,
-                            note: UInt8($0.number),
-                            velocity: 64,
-                            releaseVelocity: 64,
-                    
-                            duration: 1 )
-            }
-        }
+@resultBuilder enum PitchBuilder {
+    static func buildBlock(_ notes: Note...) -> [Pitch] {
+        notes.map { $0⋔ }
+    }
+
+    static func buildBlock(_ components: Pitch...) -> [Pitch] {
+        components
     }
 }
 
-func 𝄞(@NoteBuilder _ makeNotes: () ->[MIDINoteMessage])-> MusicSequence {
-    var sequence : MusicSequence? = nil
-    NewMusicSequence(&sequence)
-    
-    var track : MusicTrack? = nil
-    var musicTrack = MusicSequenceNewTrack(sequence!, &track)
-    
-    var time = MusicTimeStamp(1.0)
-    
-    for n in makeNotes() {
-        var note = n
-        musicTrack = MusicTrackNewMIDINoteEvent(track!, time, &note)
-        time += 0.4
+/// Track is a collection of pitches.
+public struct Track: Sequence, IteratorProtocol {
+    public typealias Element = Pitch
+    let pitches: [Pitch]
+    var header: Int = 0
+    init(_ pitches: [Pitch]) {
+        self.pitches = pitches
     }
-    return sequence!
+
+    public mutating func next() -> Pitch? {
+        if header >= pitches.count { return nil }
+        let pitch = pitches[header]
+        header += 1
+        return pitch
+    }
+}
+
+/// 𝄞 takes in a bunch of pitches and returns a Music Sequence
+/// - Parameter PitchBuilder: takes in a bunch of pitches
+/// - Returns: a pointer with all the pitches.
+public func 𝄞(@PitchBuilder _ makeAbsolutePitches: () -> [Pitch]) -> Track {
+    Track(makeAbsolutePitches())
 }
 
 postfix operator ⋔
 
-extension Note {
-    static postfix func ⋔(_ n: Note) -> Pitch {
-        // Convert a MIDI number to a pitch
-        // In electronic music, pitch is often given by MIDI number: let's call it m for our purposes.
-        // m for the note A4 is 69 and increases by one for each equal tempered semitone, so this gives
-        // us a simple conversion between frequencies and MIDI numbers (again using 440 Hz as the pitch of A4):
-        // fm  = 2(m−69)/12(440 Hz)
-        // https://newt.phys.unsw.edu.au/jw/notes.html
-        return Pitch(hertz: pow(2.0, Double(n.number - 69) / 12.0) * 440.0)
-    }
-}
-
-
 extension Pitch: Equatable {
-    static func == (lhs: Pitch, rhs: Pitch)->Bool { lhs.wrappedValue.isEqual(to: rhs.wrappedValue)}
+    public static func == (lhs: Pitch, rhs: Pitch) -> Bool { lhs.wrappedValue.isEqual(to: rhs.wrappedValue) }
 }
 
 extension Note: Equatable {
-    static func == (lhs: Note, rhs: Note)->Bool { lhs.wrappedValue==rhs.wrappedValue}
+    public static func == (lhs: Note, rhs: Note) -> Bool { lhs.wrappedValue == rhs.wrappedValue }
+}
+
+/// Synthesizer takes an iterable sequence of pitches and synthesizes them.
+public protocol Synthesizer {
+    func synth(_ track: Track) throws
 }

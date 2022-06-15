@@ -1,8 +1,8 @@
-import XCTest
 @testable import Beato
+import XCTest
 
 final class BeatoTests: XCTestCase {
     func testExample() throws {
-        XCTAssertEqual(Beato.MIDI.Notes.A⋔, Pitch(hertz: 440.0))
+        XCTAssertEqual(Note(number: 69)⋔, Pitch(hertz: 440.0))
     }
 }
