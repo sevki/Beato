@@ -20,7 +20,7 @@ jobs:
     - name: Generate Docs
       run: | 
       swift package --allow-writing-to-directory ./docs \
-       generate-documentation 
+       generate-documentation \
        --target Beato \
        --output-path ./docs \    
        --disable-indexing \
