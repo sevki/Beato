@@ -97,3 +97,8 @@ extension Pitch: Equatable {
 extension Note: Equatable {
     public static func == (lhs: Note, rhs: Note) -> Bool { lhs.wrappedValue == rhs.wrappedValue }
 }
+
+/// Synthesizer takes an iterable sequence of pitches and synthesizes them.
+public protocol Synthesizer {
+    func synth(_ track: Track) throws
+}

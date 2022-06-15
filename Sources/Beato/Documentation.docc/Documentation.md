@@ -1,6 +1,6 @@
 # ``Beato``
 
-Beato is a SwiftDSL for live coding music. 
+Beato is a Swift [DSL](https://developer.apple.com/wwdc21/10253) for [live coding](https://en.wikipedia.org/wiki/Live_coding) music. 
 
 ## Overview
 
@@ -13,3 +13,7 @@ var  📲🎶 = 𝄞{
     G; G; A♯; C; C; A♯; G; C; F; C; A♯; C; F
 }
 ```
+
+## Tutorials
+
+- [Programming Guitar Music](/tutorials/programming-guitar-music)
