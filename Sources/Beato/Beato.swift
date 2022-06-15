@@ -4,7 +4,7 @@ postfix operator ♭
 postfix operator ♯
 
 @propertyWrapper
-struct Pitch {
+public struct Pitch {
     var hertz: Double
     var wrappedValue: Double {
         get { hertz }
@@ -23,7 +23,7 @@ struct Pitch {
 }
 
 @propertyWrapper
-struct Note {
+public struct Note {
     var number: Int
     var wrappedValue: Int {
         get { number }
@@ -118,9 +118,9 @@ extension Note {
 }
 
 extension Pitch: Equatable {
-    static func == (lhs: Pitch, rhs: Pitch) -> Bool { lhs.wrappedValue.isEqual(to: rhs.wrappedValue) }
+    public static func == (lhs: Pitch, rhs: Pitch) -> Bool { lhs.wrappedValue.isEqual(to: rhs.wrappedValue) }
 }
 
 extension Note: Equatable {
-    static func == (lhs: Note, rhs: Note) -> Bool { lhs.wrappedValue == rhs.wrappedValue }
+    public static func == (lhs: Note, rhs: Note) -> Bool { lhs.wrappedValue == rhs.wrappedValue }
 }
