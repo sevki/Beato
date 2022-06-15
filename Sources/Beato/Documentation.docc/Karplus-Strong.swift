@@ -21,10 +21,11 @@ extension KarplusStrong {
             Float(arc4random_uniform(UInt32.max)) / Float(UInt32.max)
         }
 
-        let samples = noise
+        var samples = noise
 
         for i in noise.count ..< samples.count {
             samples[i] = (samples[i - noise.count] + samples[i - noise.count - 1]) / 2
         }
+        return samples
     }
 }
