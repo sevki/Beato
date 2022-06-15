@@ -20,7 +20,7 @@ jobs:
     - name: Generate Docs
       run: swift package --allow-writing-to-directory ./docs generate-documentation --target Beato --output-path ./docs --disable-indexing --transform-for-static-hosting --hosting-base-path /
     - name: Create Redirects
-      run: echo "/ /documentation/beato" > _redirects      
+      run: echo "/ /documentation/beato" > ./docs/_redirects      
     - name: Publish to Cloudflare Pages
       uses: cloudflare/pages-action@1
       with:
