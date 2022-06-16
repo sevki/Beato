@@ -3,6 +3,6 @@ import XCTest
 
 final class BeatoTests: XCTestCase {
     func testExample() throws {
-        XCTAssertEqual(Note(number: 69)⋔, Pitch(hertz: 440.0))
+        XCTAssertEqual(Note(step: 69)⋔, Pitch(hertz: 440.0))
     }
 }

@@ -24,18 +24,18 @@ postfix operator ♯
 
 /// Note represents a pitch class.
 @propertyWrapper public struct Note {
-    var number: Int
+    var step: Int
     public var wrappedValue: Int {
-        get { number }
-        set { number = newValue }
+        get { step }
+        set { step = newValue }
     }
 
     public static postfix func ♯ (num: Note) -> Note {
-        Note(number: num.number + 1)
+        Note(step: num.step + 1)
     }
 
     public static postfix func ♭ (num: Note) -> Note {
-        Note(number: num.number + 1)
+        Note(step: num.step + 1)
     }
 }
 
@@ -44,13 +44,13 @@ postfix operator ♪
 public extension Pitch {
     /// Convert an absolute pitch to it's relative pitch class.
     static postfix func ♪ (num: Pitch) -> Note {
-        Note(number: Int(round(12 * log2(num.wrappedValue / 440.0))))
+        Note(step: Int(round(12 * log2(num.wrappedValue / 440.0))))
     }
 }
 
 public extension Note {
     static postfix func ⋔ (_ n: Note) -> Pitch {
-        Pitch(hertz: pow(2.0, Double(n.number - 69) / 12.0) * 440.0)
+        Pitch(hertz: pow(2.0, Double(n.step - 69) / 12.0) * 440.0)
     }
 }
 
