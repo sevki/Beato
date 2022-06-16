@@ -23,6 +23,5 @@ extension KarplusStrong {
 
         var samples = noise
 
-
     }
 }
