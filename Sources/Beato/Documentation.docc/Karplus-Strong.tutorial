@@ -13,13 +13,15 @@
         @Steps {
             @Step {
                 We generate a short array of noise, that is, an array of random numbers. Its size is directly connected to the sound’s frequency, as it should be calculated as SampleRate / frequency.
-                @Code(name: "Karplus-Strong.swift", file: Karplus-Strong.swift)
+                @Code(name: "Karplus-Strong.swift", file: Karplus-Strong1.swift)
             }
             @Step {
                 We pass the noise array through a delay line, effectively producing new samples. The delay line is a component that models sound’s propagation delay.
+                @Code(name: "Karplus-Strong.swift", file: Karplus-Strong2.swift)
             }
             @Step {
                 We apply a lowpass filter to pass low-frequency values and impede high-frequency values, making the sound more muffled and smooth.
+                @Code(name: "Karplus-Strong.swift", file: Karplus-Strong3.swift)
             }
         }
     }
