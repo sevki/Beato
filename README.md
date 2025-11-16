@@ -80,15 +80,57 @@ let melody = 𝄞 {
     Note(step: 72)⋔  // C5
 }
 
+// Create a melody with tempo (♩ = 120 BPM)
+let timedMelody = 𝄞(tempo: 120♩) {
+    Note(step: 69)⋔  // A4 at 120 BPM
+    Note(step: 71)⋔  // B4
+    Note(step: 72)⋔  // C5
+}
+
+// Create a melody with tempo and time signature
+let waltz = 𝄞(tempo: 90♩, timeSignature: .waltzTime) {
+    Note(step: 69)⋔  // 3/4 time at 90 BPM
+    Note(step: 71)⋔
+    Note(step: 72)⋔
+}
+
 // Synthesize with Karplus-Strong algorithm
 let synth = KarplusStrong(sampleRate: 44100.0, noteDuration: 0.5)
 try synth.synth(melody)
 ```
 
+### Working with Tempo and Duration
+
+```swift
+// Create tempo using the ♩ operator
+let moderato = 100♩  // ♩ = 100 BPM
+let allegro = 140♩   // ♩ = 140 BPM
+
+// Work with different note durations
+let tempo = Tempo(bpm: 120)
+Duration.quarter.toSeconds(tempo: tempo)  // 0.5 seconds
+Duration.half.toSeconds(tempo: tempo)     // 1.0 second
+Duration.whole.toSeconds(tempo: tempo)    // 2.0 seconds
+Duration.eighth.toSeconds(tempo: tempo)   // 0.25 seconds
+
+// Use dotted and triplet notes
+Duration.dottedQuarter.toSeconds(tempo: tempo)  // 0.75 seconds
+Duration.tripletQuarter.toSeconds(tempo: tempo) // 0.33 seconds
+
+// Common time signatures
+TimeSignature.commonTime  // 4/4
+TimeSignature.waltzTime   // 3/4
+TimeSignature.cutTime     // 2/2
+TimeSignature.marchTime   // 2/4
+```
+
 ## Features
 
-- Musical notation operators (♯, ♭, 𝄞)
+- Musical notation operators (♯, ♭, 𝄞, ♩)
 - Pitch and Note abstractions
+- **Tempo and timing control** (BPM, time signatures, note durations)
+- Duration types (whole, half, quarter, eighth, dotted notes, triplets)
+- Time signature support (4/4, 3/4, 6/8, etc.)
 - Track building with result builders
 - Karplus-Strong synthesizer for guitar-like sounds
 - Cross-platform support (macOS, Linux, WebAssembly)
