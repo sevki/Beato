@@ -20,7 +20,9 @@ Beato is built and tested on multiple platforms:
 
 **Linux users**: Install Swift using Swiftly (official Swift toolchain installer):
 ```bash
-curl -L https://swift-server.github.io/swiftly/swiftly-install.sh | bash
+curl -O "https://download.swift.org/swiftly/linux/swiftly-1.1.0-$(uname -m).tar.gz"
+tar -zxf "swiftly-1.1.0-$(uname -m).tar.gz"
+./swiftly init
 swiftly install latest
 ```
 Learn more at [swift.org/install/linux/swiftly](https://www.swift.org/install/linux/swiftly/)

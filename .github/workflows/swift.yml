@@ -25,7 +25,9 @@ jobs:
     - name: Setup Swift (Linux with Swiftly)
       if: runner.os == 'Linux'
       run: |
-        curl -L https://swift-server.github.io/swiftly/swiftly-install.sh | bash -s -- -y
+        curl -O "https://download.swift.org/swiftly/linux/swiftly-1.1.0-$(uname -m).tar.gz"
+        tar -zxf "swiftly-1.1.0-$(uname -m).tar.gz"
+        ./swiftly init --no-modify-profile
         echo "$HOME/.local/bin" >> $GITHUB_PATH
         export PATH="$HOME/.local/bin:$PATH"
         swiftly install ${{ matrix.swift-version }}
@@ -67,7 +69,9 @@ jobs:
 
     - name: Setup Swift 6.2.1 with Swiftly
       run: |
-        curl -L https://swift-server.github.io/swiftly/swiftly-install.sh | bash -s -- -y
+        curl -O "https://download.swift.org/swiftly/linux/swiftly-1.1.0-$(uname -m).tar.gz"
+        tar -zxf "swiftly-1.1.0-$(uname -m).tar.gz"
+        ./swiftly init --no-modify-profile
         echo "$HOME/.local/bin" >> $GITHUB_PATH
         export PATH="$HOME/.local/bin:$PATH"
         swiftly install 6.2.1
