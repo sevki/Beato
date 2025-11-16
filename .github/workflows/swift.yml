@@ -8,19 +8,68 @@ on:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        os: [macos-12, ubuntu-22.04]
+        include:
+          - os: macos-12
+            swift-version: "5.9"
+          - os: ubuntu-22.04
+            swift-version: "5.9"
 
-    runs-on: macos-12
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Setup Swift (Linux)
+      if: runner.os == 'Linux'
+      uses: swift-actions/setup-swift@v1
+      with:
+        swift-version: ${{ matrix.swift-version }}
+
     - name: Build
       run: swift build -v
+
     - name: Run tests
       run: swift test -v
+
+  build-wasm:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup SwiftWasm
+      run: |
+        wget -q https://github.com/swiftwasm/swift/releases/download/swift-wasm-5.9.0-RELEASE/swift-wasm-5.9.0-RELEASE-ubuntu22.04_x86_64.tar.gz
+        tar xzf swift-wasm-5.9.0-RELEASE-ubuntu22.04_x86_64.tar.gz
+        echo "$PWD/swift-wasm-5.9.0-RELEASE/usr/bin" >> $GITHUB_PATH
+
+    - name: Build for WebAssembly
+      run: |
+        swift build --triple wasm32-unknown-wasi -v
+
+    - name: Upload WebAssembly artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: beato-wasm
+        path: .build/wasm32-unknown-wasi/debug/
+
+  docs:
+    runs-on: macos-12
+    needs: build
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - uses: actions/checkout@v3
+
     - name: Generate Docs
       run: swift package --allow-writing-to-directory ./docs generate-documentation --target Beato --output-path ./docs --disable-indexing --transform-for-static-hosting --hosting-base-path /
+
     - name: Create Redirects
-      run: echo "/ /documentation/beato" > ./docs/_redirects      
+      run: echo "/ /documentation/beato" > ./docs/_redirects
+
     - name: Publish to Cloudflare Pages
       uses: cloudflare/pages-action@1
       with:
