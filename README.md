@@ -16,6 +16,15 @@ Beato is built and tested on multiple platforms:
 
 ## Installation
 
+### Prerequisites
+
+**Linux users**: Install Swift using Swiftly (official Swift toolchain installer):
+```bash
+curl -L https://swift-server.github.io/swiftly/swiftly-install.sh | bash
+swiftly install latest
+```
+Learn more at [swift.org/install/linux/swiftly](https://www.swift.org/install/linux/swiftly/)
+
 ### Swift Package Manager
 
 Add Beato to your `Package.swift`:
@@ -36,7 +45,11 @@ swift test
 
 **Static Linux (portable binaries with no runtime dependencies):**
 ```bash
-# Install the static Linux SDK (Swift 6.2.1+)
+# Install Swift 6.2.1 using Swiftly
+swiftly install 6.2.1
+swiftly use 6.2.1
+
+# Install the static Linux SDK
 # Learn more: https://www.swift.org/documentation/articles/static-linux-getting-started.html
 swift sdk install https://download.swift.org/swift-6.2.1-release/static-sdk/swift-6.2.1-RELEASE/swift-6.2.1-RELEASE_static-linux-0.0.1.artifactbundle.tar.gz \
   --checksum 08e1939a504e499ec871b36826569173103e4562769e12b9b8c2a50f098374ad
