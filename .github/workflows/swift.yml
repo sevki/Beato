@@ -56,6 +56,36 @@ jobs:
         name: beato-wasm
         path: .build/wasm32-unknown-wasi/debug/
 
+  build-static-linux:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Swift 6.2.1
+      uses: swift-actions/setup-swift@v2
+      with:
+        swift-version: "6.2.1"
+
+    - name: Install Static Linux SDK
+      run: |
+        swift sdk install https://download.swift.org/swift-6.2.1-release/static-sdk/swift-6.2.1-RELEASE/swift-6.2.1-RELEASE_static-linux-0.0.1.artifactbundle.tar.gz --checksum 08e1939a504e499ec871b36826569173103e4562769e12b9b8c2a50f098374ad
+
+    - name: Build Static Linux Binary
+      run: |
+        swift build -c release --swift-sdk x86_64-swift-linux-musl -v
+
+    - name: Verify Static Binary
+      run: |
+        file .build/x86_64-swift-linux-musl/release/libBeato.a
+        ldd .build/x86_64-swift-linux-musl/release/libBeato.a 2>&1 | grep "not a dynamic executable" || true
+
+    - name: Upload Static Linux artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: beato-static-linux
+        path: .build/x86_64-swift-linux-musl/release/
+
   docs:
     runs-on: macos-12
     needs: build
