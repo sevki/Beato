@@ -35,7 +35,7 @@ postfix operator ♯
     }
 
     public static postfix func ♭ (num: Note) -> Note {
-        Note(step: num.step + 1)
+        Note(step: num.step - 1)
     }
 }
 
