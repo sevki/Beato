@@ -8,19 +8,108 @@ on:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        os: [macos-12, ubuntu-22.04]
+        include:
+          - os: macos-12
+            swift-version: "5.9"
+          - os: ubuntu-22.04
+            swift-version: "5.9"
 
-    runs-on: macos-12
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Setup Swift (Linux with Swiftly)
+      if: runner.os == 'Linux'
+      run: |
+        curl -O "https://download.swift.org/swiftly/linux/swiftly-1.1.0-$(uname -m).tar.gz"
+        tar -zxf "swiftly-1.1.0-$(uname -m).tar.gz"
+        ./swiftly init --no-modify-profile
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        export PATH="$HOME/.local/bin:$PATH"
+        swiftly install ${{ matrix.swift-version }}
+        swiftly use ${{ matrix.swift-version }}
+
     - name: Build
       run: swift build -v
+
     - name: Run tests
       run: swift test -v
+
+  build-wasm:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup SwiftWasm
+      run: |
+        wget -q https://github.com/swiftwasm/swift/releases/download/swift-wasm-5.9.0-RELEASE/swift-wasm-5.9.0-RELEASE-ubuntu22.04_x86_64.tar.gz
+        tar xzf swift-wasm-5.9.0-RELEASE-ubuntu22.04_x86_64.tar.gz
+        echo "$PWD/swift-wasm-5.9.0-RELEASE/usr/bin" >> $GITHUB_PATH
+
+    - name: Build for WebAssembly
+      run: |
+        swift build --triple wasm32-unknown-wasi -v
+
+    - name: Upload WebAssembly artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: beato-wasm
+        path: .build/wasm32-unknown-wasi/debug/
+
+  build-static-linux:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Swift 6.2.1 with Swiftly
+      run: |
+        curl -O "https://download.swift.org/swiftly/linux/swiftly-1.1.0-$(uname -m).tar.gz"
+        tar -zxf "swiftly-1.1.0-$(uname -m).tar.gz"
+        ./swiftly init --no-modify-profile
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        export PATH="$HOME/.local/bin:$PATH"
+        swiftly install 6.2.1
+        swiftly use 6.2.1
+
+    - name: Install Static Linux SDK
+      run: |
+        swift sdk install https://download.swift.org/swift-6.2.1-release/static-sdk/swift-6.2.1-RELEASE/swift-6.2.1-RELEASE_static-linux-0.0.1.artifactbundle.tar.gz --checksum 08e1939a504e499ec871b36826569173103e4562769e12b9b8c2a50f098374ad
+
+    - name: Build Static Linux Binary
+      run: |
+        swift build -c release --swift-sdk x86_64-swift-linux-musl -v
+
+    - name: Verify Static Binary
+      run: |
+        file .build/x86_64-swift-linux-musl/release/libBeato.a
+        ldd .build/x86_64-swift-linux-musl/release/libBeato.a 2>&1 | grep "not a dynamic executable" || true
+
+    - name: Upload Static Linux artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: beato-static-linux
+        path: .build/x86_64-swift-linux-musl/release/
+
+  docs:
+    runs-on: macos-12
+    needs: build
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - uses: actions/checkout@v3
+
     - name: Generate Docs
       run: swift package --allow-writing-to-directory ./docs generate-documentation --target Beato --output-path ./docs --disable-indexing --transform-for-static-hosting --hosting-base-path /
+
     - name: Create Redirects
-      run: echo "/ /documentation/beato" > ./docs/_redirects      
+      run: echo "/ /documentation/beato" > ./docs/_redirects
+
     - name: Publish to Cloudflare Pages
       uses: cloudflare/pages-action@1
       with:
